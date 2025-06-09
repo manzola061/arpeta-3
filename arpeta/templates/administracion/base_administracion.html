@@ -1,0 +1,157 @@
+{% load static %}
+
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block titulo %}{% endblock %} | ARPETA</title>
+
+    <script src="https://kit.fontawesome.com/178fa077d5.js" crossorigin="anonymous"></script>
+    
+    <script src="{% static 'tailwind.js' %}"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Transición simple para el sidebar */
+        #sidebar {
+            transition: width 0.3s ease-in-out;
+        }
+        .nav-text {
+            transition: opacity 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="flex h-screen">
+        <aside id="sidebar" class="bg-gray-800 text-white flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+                <h1 class="text-xl font-bold text-center">
+                    <span class="nav-text">ARPETA</span>
+                </h1>
+            </div>
+
+            <nav class="flex-grow p-2">
+                <a href="{% url 'inicio_administracion' %}" class="flex items-center p-3 rounded hover:bg-gray-700">
+                    <i class="fas fa-home w-6 text-center"></i>
+                    <span class="nav-text ml-3">Inicio</span>
+                </a>
+                <a href="{% url 'operadores' %}" class="flex items-center p-3 rounded hover:bg-gray-700 mt-2">
+                    <i class="fas fa-users w-6 text-center"></i>
+                    <span class="nav-text ml-3">Operadores</span>
+                </a>
+                <a href="{% url 'vehiculos' %}" class="flex items-center p-3 rounded hover:bg-gray-700 mt-2">
+                    <i class="fas fa-truck w-6 text-center"></i>
+                    <span class="nav-text ml-3">Vehículos</span>
+                </a>
+                <a href="{% url 'asignaciones' %}" class="flex items-center p-3 rounded hover:bg-gray-700 mt-2">
+                    <i class="fas fa-tasks w-6 text-center"></i>
+                    <span class="nav-text ml-3">Asignaciones</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center font-bold">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-semibold nav-text">{{ user.username }}</p>
+                        <a href="{% url 'logout' %}" class="text-xs text-gray-400 hover:text-white nav-text">Cerrar sesión</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex flex-col flex-1">
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+                <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-bars fa-lg"></i>
+                </button>
+                
+                <h1 class="text-xl font-bold">
+                    {% block titulo_seccion %}{% endblock %}
+                </h1>
+
+                <div></div>
+            </header>
+
+            <main class="flex-1 p-6 overflow-y-auto">
+                {% block contenido %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const navTexts = document.querySelectorAll('.nav-text');
+            
+            // Estado inicial del sidebar (colapsado por defecto)
+            const SIDEBAR_EXPANDED_WIDTH = '256px'; // 16rem
+            const SIDEBAR_COLLAPSED_WIDTH = '68px'; // Aprox 4.25rem
+
+            let isExpanded = localStorage.getItem('sidebarExpanded') === 'true';
+
+            function applySidebarState() {
+                if (isExpanded) {
+                    sidebar.style.width = SIDEBAR_EXPANDED_WIDTH;
+                    navTexts.forEach(text => {
+                        text.style.opacity = '1';
+                        text.style.visibility = 'visible';
+                    });
+                } else {
+                    sidebar.style.width = SIDEBAR_COLLAPSED_WIDTH;
+                    navTexts.forEach(text => {
+                        text.style.opacity = '0';
+                        text.style.visibility = 'hidden';
+                    });
+                }
+            }
+
+            // Aplicar estado al cargar la página
+            applySidebarState();
+
+            // Evento para el botón
+            sidebarToggle.addEventListener('click', function() {
+                isExpanded = !isExpanded;
+                localStorage.setItem('sidebarExpanded', isExpanded);
+                applySidebarState();
+            });
+
+            // Resaltar el enlace de navegación activo
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('aside nav a');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('bg-gray-700', 'font-bold');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

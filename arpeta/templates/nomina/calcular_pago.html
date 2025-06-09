@@ -1,0 +1,80 @@
+{% extends 'nomina/base_nomina.html' %} 
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold mb-6">Cálculo de Pago a Operador</h2>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="post" id="pagoForm" action="{% url 'calcular_pago' %}">
+            {% csrf_token %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-700{% else %}bg-green-100 border-green-400 text-green-700{% endif %} border px-4 py-3 rounded relative mb-4" role="alert">
+                        <span class="block sm:inline">{{ message }}</span>
+                        <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
+                            <svg class="fill-current h-6 w-6 {% if message.tags == 'error' %}text-red-500{% else %}text-green-500{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <title>Close</title>
+                                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                            </svg>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="mb-4">
+                <label for="asignacion" class="block text-gray-700 mb-2">Asignación:</label>
+                <select name="asignacion" id="asignacion" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <option value="">Seleccione una asignación</option>
+                    {% for asignacion in asignaciones %}
+                        <option value="{{ asignacion.id }}">
+                            {{ asignacion.operador.nombre }} {{ asignacion.operador.apellido }} - 
+                            {{ asignacion.vehiculo.placa }} (Vueltas: {{ asignacion.total_vueltas }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Tipo de Pago:</label>
+                <div class="flex gap-4">
+                    <div class="flex items-center">
+                        <input class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" type="radio" name="tipo_pago" id="tipo_pago_arena" value="arena" required>
+                        <label for="tipo_pago_arena" class="ml-2 block text-gray-700">Pago en Arena</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" type="radio" name="tipo_pago" id="tipo_pago_divisas" value="divisas">
+                        <label for="tipo_pago_divisas" class="ml-2 block text-gray-700">Pago en Divisas</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6 flex items-center">
+                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" name="confirmar" id="confirmar" required>
+                <label for="confirmar" class="ml-2 block text-gray-700">
+                    Confirmar que los datos son correctos
+                </label>
+            </div>
+            
+            <div class="flex justify-between">
+                <button type="submit" name="resultado_pago" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Calcular Pago</button>
+                <button type="submit" name="generar_pdf" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Generar PDF</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('pagoForm');
+    form.addEventListener('submit', function(e) {
+        const confirmar = document.getElementById('confirmar');
+        if (!confirmar.checked) {
+            e.preventDefault();
+            alert('Debe confirmar que los datos son correctos antes de continuar.');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "administracion/base_administracion.html" %}
+
+{% block titulo %}Editar Operador{% endblock %}
+
+{% block titulo_seccion %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'operadores' %}" class="text-gray-500 hover:text-gray-700 transition" title="Volver al listado">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2 class="text-xl font-semibold text-gray-800">
+            Editar a: <span class="text-primary-700">{{ formulario.instance.nombre }} {{ formulario.instance.apellido }}</span>
+        </h2>
+    </div>
+{% endblock %}
+
+{% block contenido %}
+
+<div class="bg-white p-6 md:p-8 rounded-lg shadow">
+    <form enctype="multipart/form-data" method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <input type="hidden" name="cedula" value="{{ formulario.instance.cedula }}">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+            
+            {% for campo in formulario %}
+                {% if campo.name != 'cedula' and campo.name != 'foto_operador' %}
+                    <div class="space-y-1 {% if campo.name == 'direccion' %}md:col-span-2{% endif %}">
+                        <label for="{{ campo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ campo.label }}
+                            {% if campo.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                        </label>
+                        
+                        {% if campo.field.widget.input_type == "checkbox" %}
+                            <div class="flex items-center space-x-6 pt-2">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="{{ campo.name }}" value="True" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500" {% if campo.value %}checked{% endif %}>
+                                    <span class="ml-2 text-sm text-gray-700">Sí</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="{{ campo.name }}" value="False" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500" {% if not campo.value %}checked{% endif %}>
+                                    <span class="ml-2 text-sm text-gray-700">No</span>
+                                </label>
+                            </div>
+                        {% elif campo.name == 'direccion' %}
+                            <textarea id="{{ campo.id_for_label }}" name="{{ campo.name }}" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">{{ campo.value|default_if_none:'' }}</textarea>
+                        {% else %}
+                            <input type="{{ campo.field.widget.input_type }}" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default_if_none:'' }}"
+                                   class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                        {% endif %}
+                        
+                        {% if campo.errors %}
+                            <p class="text-sm text-red-600 mt-1">{{ campo.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="md:col-span-2">
+                <label for="{{ formulario.foto_operador.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    {{ formulario.foto_operador.label }}
+                </label>
+                <div class="mt-2 flex items-center space-x-4">
+                    <img id="imagePreview" 
+                         src="{% if formulario.instance.foto_operador %}{{ formulario.instance.foto_operador.url }}{% else %}https://via.placeholder.com/100x100.png?text=Sin+Foto{% endif %}" 
+                         alt="Vista previa" 
+                         class="h-24 w-24 rounded-full object-cover bg-gray-100 border">
+                    <div>
+                        <input type="file" name="{{ formulario.foto_operador.name }}" id="{{ formulario.foto_operador.id_for_label }}" accept="image/*" 
+                               class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer">
+                        {% if formulario.instance.foto_operador %}
+                        <p class="text-xs text-gray-500 mt-1">Sube un nuevo archivo para reemplazar la imagen actual.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if formulario.foto_operador.errors %}
+                    <p class="text-sm text-red-600 mt-1">{{ formulario.foto_operador.errors|striptags }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="pt-6 border-t border-gray-200 mt-6">
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'operadores' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+        
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageUploadInput = document.getElementById('{{ formulario.foto_operador.id_for_label }}');
+        const imagePreview = document.getElementById('imagePreview');
+
+        if (imageUploadInput && imagePreview) {
+            imageUploadInput.addEventListener('change', function(event) {
+                if (event.target.files && event.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    }
+                    
+                    reader.readAsDataURL(event.target.files[0]);
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

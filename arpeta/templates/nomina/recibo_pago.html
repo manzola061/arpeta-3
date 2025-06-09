@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Recibo de Pago - {{ asignacion.operador.nombre }} {{ asignacion.operador.apellido }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white p-5 font-sans text-gray-800">
+    <!-- Encabezado -->
+    <div class="text-center mb-5 pb-3 border-b-2 border-gray-800">
+        <div class="text-2xl font-bold mb-2">TRANSPORTE Y CONSTRUCCIONES S.A.</div>
+        <div class="text-xl font-semibold my-2">RECIBO DE PAGO A OPERADOR</div>
+        <div class="text-gray-600">Fecha: {{ fecha }}</div>
+    </div>
+
+    <!-- Tabla de detalles -->
+    <table class="w-full mb-5 border-collapse">
+        <!-- Información del Operador -->
+        <tr>
+            <th colspan="2" class="bg-gray-100 p-2 text-left border border-gray-300">INFORMACIÓN DEL OPERADOR</th>
+        </tr>
+        <tr>
+            <td class="w-1/3 p-2 border border-gray-300">Nombre:</td>
+            <td class="p-2 border border-gray-300">{{ asignacion.operador.nombre }} {{ asignacion.operador.apellido }}</td>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Cédula:</td>
+            <td class="p-2 border border-gray-300">{{ asignacion.operador.cedula }}</td>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Teléfono:</td>
+            <td class="p-2 border border-gray-300">{{ asignacion.operador.telefono }}</td>
+        </tr>
+
+        <!-- Información del Vehículo -->
+        <tr>
+            <th colspan="2" class="bg-gray-100 p-2 text-left border border-gray-300">INFORMACIÓN DEL VEHÍCULO</th>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Placa:</td>
+            <td class="p-2 border border-gray-300">{{ asignacion.vehiculo.placa }}</td>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Modelo:</td>
+            <td class="p-2 border border-gray-300">{{ asignacion.vehiculo.modelo }}</td>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Capacidad:</td>
+            <td class="p-2 border border-gray-300">{{ capacidad_camion }} m³</td>
+        </tr>
+
+        <!-- Detalles de Trabajo -->
+        <tr>
+            <th colspan="2" class="bg-gray-100 p-2 text-left border border-gray-300">DETALLES DE TRABAJO</th>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Material Transportado:</td>
+            <td class="p-2 border border-gray-300">{{ material|title }}</td>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Vueltas Realizadas:</td>
+            <td class="p-2 border border-gray-300">{{ asignacion.total_vueltas }}</td>
+        </tr>
+
+        <!-- Detalles de Pago -->
+        <tr>
+            <th colspan="2" class="bg-gray-100 p-2 text-left border border-gray-300">DETALLES DE PAGO</th>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Tipo de Pago:</td>
+            <td class="p-2 border border-gray-300">
+                {% if tipo_pago == 'arena' %}
+                    Pago en Arena
+                {% else %}
+                    Pago en Divisas
+                {% endif %}
+            </td>
+        </tr>
+        {% if tipo_pago == 'arena' %}
+        <tr>
+            <td class="p-2 border border-gray-300">Cantidad de Arena:</td>
+            <td class="p-2 border border-gray-300">{{ pago_arena }} m³</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td class="p-2 border border-gray-300">Tasa Aplicada:</td>
+            <td class="p-2 border border-gray-300">${{ tasa }} por m³</td>
+        </tr>
+        <tr>
+            <td class="p-2 border border-gray-300">Total a Pagar:</td>
+            <td class="p-2 border border-gray-300">${{ pago_divisas|floatformat:2 }}</td>
+        </tr>
+        {% endif %}
+    </table>
+
+    <!-- Área de firmas -->
+    <div class="flex justify-between mt-12">
+        <div class="text-center">
+            <div class="border-t border-gray-800 w-48 mx-auto pt-1">Firma del Operador</div>
+        </div>
+        <div class="text-center">
+            <div class="border-t border-gray-800 w-48 mx-auto pt-1">Firma del Administrador</div>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <div class="text-xs text-center text-gray-500 mt-8">
+        Este documento es un comprobante de pago generado automáticamente el {{ fecha }}.
+    </div>
+</body>
+</html>

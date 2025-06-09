@@ -1,0 +1,88 @@
+{% extends 'nomina/base_nomina.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Card Header -->
+        <div class="bg-blue-600 text-white px-6 py-4">
+            <h3 class="text-xl font-semibold">Resultado de Pago</h3>
+        </div>
+        
+        <!-- Card Body -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Información del Operador -->
+                <div>
+                    <h5 class="text-lg font-medium mb-3 text-gray-800">Información del Operador</h5>
+                    <div class="space-y-2">
+                        <p><span class="font-semibold">Nombre:</span> {{ asignacion.operador.nombre }} {{ asignacion.operador.apellido }}</p>
+                        <p><span class="font-semibold">Cédula:</span> {{ asignacion.operador.cedula }}</p>
+                        <p><span class="font-semibold">Teléfono:</span> {{ asignacion.operador.telefono }}</p>
+                    </div>
+                </div>
+                
+                <!-- Información del Vehículo -->
+                <div>
+                    <h5 class="text-lg font-medium mb-3 text-gray-800">Información del Vehículo</h5>
+                    <div class="space-y-2">
+                        <p><span class="font-semibold">Placa:</span> {{ asignacion.vehiculo.placa }}</p>
+                        <p><span class="font-semibold">Modelo:</span> {{ asignacion.vehiculo.modelo }}</p>
+                        <p><span class="font-semibold">Capacidad:</span> {{ capacidad_camion }} m³</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Detalles de Trabajo -->
+                <div>
+                    <h5 class="text-lg font-medium mb-3 text-gray-800">Detalles de Trabajo</h5>
+                    <div class="space-y-2">
+                        <p><span class="font-semibold">Material Transportado:</span> {{ material|title }}</p>
+                        <p><span class="font-semibold">Vueltas Realizadas:</span> {{ asignacion.total_vueltas }}</p>
+                        <p><span class="font-semibold">Fecha:</span> {{ fecha }}</p>
+                    </div>
+                </div>
+                
+                <!-- Detalles de Pago -->
+                <div>
+                    <h5 class="text-lg font-medium mb-3 text-gray-800">Detalles de Pago</h5>
+                    <div class="space-y-2">
+                        <p>
+                            <span class="font-semibold">Tipo de Pago:</span> 
+                            {% if tipo_pago == 'arena' %}
+                                Pago en Arena
+                            {% else %}
+                                Pago en Divisas
+                            {% endif %}
+                        </p>
+                        {% if tipo_pago == 'arena' %}
+                            <p><span class="font-semibold">Cantidad de Arena:</span> {{ pago_arena }} m³</p>
+                        {% else %}
+                            <p><span class="font-semibold">Tasa Aplicada:</span> ${{ tasa }} por m³</p>
+                            <p><span class="font-semibold">Total a Pagar:</span> ${{ pago_divisas|floatformat:2 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulario para generar PDF -->
+            <form method="post" action="{% url 'generar_recibo_pdf' %}">
+                {% csrf_token %}
+                <input type="hidden" name="asignacion_id" value="{{ asignacion.id }}">
+                <input type="hidden" name="tipo_pago" value="{{ tipo_pago }}">
+                
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'calcular_pago' %}" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors">
+                        Volver
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                        Generar Recibo PDF
+                    </button>
+                    
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

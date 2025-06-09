@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARPETA - Iniciar Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen flex justify-center">
+    <div class="grid grid-cols-12 w-full h-full bg-white">
+
+        <div class="col-span-12 md:col-span-4 bg-gray-100 p-8 flex flex-col justify-center items-center">
+            <h1 class="text-center text-5xl text-gray-600 font-bold mb-6">ARPETA</h1>
+            <h2 class="text-center text-2xl text-gray-600 mb-4">Iniciar Sesión</h2>
+            <form method="post" class="space-y-4 w-full">
+                {% csrf_token %} <!-- Token de seguridad para formularios en Django -->
+                <div>
+                    <input type="email" name="username" class="w-full p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Correo Electrónico" value="{{ form.username.value|default:'' }}">
+                </div>
+                <div class="relative">
+                    <input type="password" name="password" id="password" class="w-full p-4 pr-20 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contraseña" value="{{ form.password.value|default:'' }}">
+                    <span id="togglePassword" class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600 cursor-pointer hover:text-sky-600">
+                        Mostrar
+                    </span>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-sky-600 text-white text-lg font-semibold rounded-lg hover:bg-sky-800 transition-colors">
+                    Iniciar sesión
+                </button>
+            </form>
+
+            <!-- Mostrar mensajes de error -->
+            {% if messages %}
+                <div class="mt-4">
+                    {% for message in messages %}
+                        <div class="alert alert-danger text-red-500">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-span-12 md:col-span-8 h-64 md:h-auto bg-cover bg-center" style="background-image: url('https://cdni.rt.com/actualidad/public_images/2018.11/article/5bfc5c8408f3d96a338b4569.jpg');"></div>
+
+    </div>
+
+    <script>
+        // Funcionalidad para mostrar/ocultar la contraseña
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function (e) {
+            // Cambia el tipo de input entre 'password' y 'text'
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            // Cambia el texto del botón
+            this.textContent = type === 'password' ? 'Mostrar' : 'Ocultar';
+        });
+    </script>
+</body>
+</html>

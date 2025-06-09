@@ -1,0 +1,168 @@
+{% extends 'administracion/base_administracion.html' %}
+
+{% block titulo %}Crear Asignación{% endblock %}
+
+{% block titulo_seccion %}
+    <div class="flex items-center space-x-2">
+        <a href="{% url 'asignaciones' %}" class="text-gray-500 hover:text-gray-700 transition">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2 class="text-xl font-semibold text-gray-800">Crear Nueva Asignación</h2>
+    </div>
+{% endblock %}
+
+{% block contenido %}
+
+{% comment %} Bloque de Mensajes de Django (Estilo Consistente) {% endcomment %}
+{% if messages %}
+<div class="space-y-3 mb-6">
+    {% for message in messages %}
+    <div class="p-4 text-sm rounded-lg flex items-center
+                {% if message.tags == 'success' %} bg-green-100 text-green-800 {% endif %}
+                {% if message.tags == 'error' %} bg-red-100 text-red-800 {% endif %}
+                {% if message.tags == 'warning' %} bg-yellow-100 text-yellow-800 {% endif %}
+                {% if message.tags == 'info' %} bg-blue-100 text-blue-800 {% endif %}"
+         role="alert">
+        <i class="fas 
+                  {% if message.tags == 'success' %} fa-check-circle {% endif %}
+                  {% if message.tags == 'error' %} fa-exclamation-circle {% endif %}
+                  {% if message.tags == 'warning' %} fa-exclamation-triangle {% endif %}
+                  {% if message.tags == 'info' %} fa-info-circle {% endif %} mr-3"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% comment %} Fin del Bloque de Mensajes {% endcomment %}
+
+<div class="bg-white p-6 rounded-lg shadow">
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for campo in formulario %}
+                {% if campo.name in "total_material,total_vueltas" %}
+                    <input type="hidden" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default:'0' }}">
+                {% else %}
+                    <div class="space-y-1">
+                        <label for="{{ campo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ campo.label }}
+                            {% if campo.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                        </label>
+                        
+                        {% if campo.name == "tipo_material" %}
+                            <div class="flex items-center space-x-2">
+                                <select name="{{ campo.name }}" id="{{ campo.id_for_label }}" class="flex-grow block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                                    {% for value, text in campo.field.choices %}
+                                        <option value="{{ value }}" {% if campo.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" id="btnNuevoMaterial" class="flex-shrink-0 bg-primary-600 text-white rounded-md p-2 hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" aria-label="Agregar nuevo material">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        {% elif campo.field.widget.input_type == "select" %}
+                            <select name="{{ campo.name }}" id="{{ campo.id_for_label }}" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                                {% for value, text in campo.field.choices %}
+                                    <option value="{{ value }}" {% if campo.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+                                {% endfor %}
+                            </select>
+                        {% elif campo.field.widget.input_type == "checkbox" %}
+                             <div class="flex items-center space-x-6 pt-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="{{ campo.name }}" value="True" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500" {% if campo.value|default:True %}checked{% endif %}>
+                                    <span class="ml-2 text-sm text-gray-700">Activa</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="{{ campo.name }}" value="False" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500" {% if campo.value == False %}checked{% endif %}>
+                                    <span class="ml-2 text-sm text-gray-700">Inactiva</span>
+                                </label>
+                            </div>
+                        {% else %}
+                             <input type="{{ campo.field.widget.input_type }}" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default:'' }}"
+                                    class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                        {% endif %}
+
+                        {% if campo.errors %}
+                            <p class="text-sm text-red-600 mt-1">{{ campo.errors.as_text }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="pt-5 border-t border-gray-200">
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'asignaciones' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                    Guardar Asignación
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnNuevoMaterial = document.getElementById('btnNuevoMaterial');
+
+    if (btnNuevoMaterial) {
+        btnNuevoMaterial.addEventListener('click', async () => {
+            const { value: nombreMaterial } = await Swal.fire({
+                title: 'Agregar Nuevo Material',
+                input: 'text',
+                inputLabel: 'Nombre del Material',
+                inputPlaceholder: 'Ingrese el nombre del material',
+                showCancelButton: true,
+                confirmButtonText: 'Guardar',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value) return 'Debe ingresar un nombre para el material';
+                }
+            });
+
+            if (nombreMaterial) {
+                try {
+                    const response = await fetch("{% url 'crear_tipo_material' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({ nombre: nombreMaterial }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const select = document.querySelector('select[name="tipo_material"]');
+                        if (select) {
+                            const option = new Option(data.nombre, data.id, true, true);
+                            select.appendChild(option);
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Material agregado!',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        }
+                    } else {
+                        Swal.fire('Error', data.error || 'No se pudo agregar el material', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error de Conexión', 'No se pudo conectar con el servidor.', 'error');
+                }
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

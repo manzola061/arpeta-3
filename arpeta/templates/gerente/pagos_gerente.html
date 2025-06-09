@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Pagos | FlotaMaster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1E3A8A',
+                        'secondary': '#1E40AF',
+                        'accent': '#3B82F6',
+                        'dark': '#0F172A',
+                        'light': '#F8FAFC',
+                        'success': '#10B981',
+                        'warning': '#F59E0B',
+                        'danger': '#EF4444'
+                    },
+                    fontFamily: {
+                        'montserrat': ['Montserrat', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #F8FAFC;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .payment-method {
+            transition: all 0.3s ease;
+        }
+        .payment-method:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-50">
+    <!-- Barra de navegación -->
+    <nav class="bg-primary text-white px-6 py-3 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-money-bill-wave text-2xl"></i>
+                <span class="text-xl font-bold">Registro de Pagos</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="hidden md:inline">Hola, Gerente</span>
+                <button class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="container mx-auto px-4 py-8 animate-fade-in">
+        <!-- Encabezado -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-dark mb-2">Registro de Pagos</h1>
+                <p class="text-gray-600">Historial y registro de pagos a operadores</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <div class="bg-white px-4 py-2 rounded-lg shadow-sm flex items-center">
+                    <span class="text-sm text-gray-500 mr-2">Periodo:</span>
+                    <span class="font-medium">Mayo 2023</span>
+                </div>
+                <button class="bg-accent hover:bg-secondary text-white px-4 py-2 rounded-lg shadow-sm transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Nuevo Pago
+                </button>
+            </div>
+        </div>
+
+        <!-- Tarjetas de resumen -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Tarjeta 1 -->
+            <div class="glass-card rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500">Total Pagado</p>
+                        <h3 class="text-2xl font-bold text-dark mt-2">$12,450</h3>
+                    </div>
+                    <div class="bg-success/10 p-3 rounded-full">
+                        <i class="fas fa-dollar-sign text-success text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-gray-500 text-sm">Equivalente a 1,245 m³</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2 -->
+            <div class="glass-card rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500">Pagos en Dólares</p>
+                        <h3 class="text-2xl font-bold text-dark mt-2">$8,200</h3>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-money-bill text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-gray-500 text-sm">65.8% del total</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3 -->
+            <div class="glass-card rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500">Pagos en Bs.</p>
+                        <h3 class="text-2xl font-bold text-dark mt-2">Bs. 85,750</h3>
+                    </div>
+                    <div class="bg-warning/10 p-3 rounded-full">
+                        <i class="fas fa-coins text-warning text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-gray-500 text-sm">(~$1,250 al cambio)</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta 4 -->
+            <div class="glass-card rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500">Pagos en Material</p>
+                        <h3 class="text-2xl font-bold text-dark mt-2">3,000 m³</h3>
+                    </div>
+                    <div class="bg-danger/10 p-3 rounded-full">
+                        <i class="fas fa-cubes text-danger text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-gray-500 text-sm">(~$3,000 estimado)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métodos de pago -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Método 1 -->
+            <div class="glass-card payment-method rounded-xl p-6 shadow-lg cursor-pointer border-2 border-blue-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-money-bill-wave text-blue-600 text-xl"></i>
+                    </div>
+                    <span class="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Más usado</span>
+                </div>
+                <h3 class="text-xl font-semibold text-dark mb-2">Pago en Dólares</h3>
+                <p class="text-gray-600 text-sm mb-4">Pago directo en efectivo (USD)</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">Operadores:</span>
+                    <span class="font-medium">42</span>
+                </div>
+            </div>
+
+            <!-- Método 2 -->
+            <div class="glass-card payment-method rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <i class="fas fa-coins text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-semibold text-dark mb-2">Pago en Bolívares</h3>
+                <p class="text-gray-600 text-sm mb-4">Pago en moneda local (Bs.)</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">Operadores:</span>
+                    <span class="font-medium">18</span>
+                </div>
+            </div>
+
+            <!-- Método 3 -->
+            <div class="glass-card payment-method rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-red-100 p-3 rounded-full">
+                        <i class="fas fa-cubes text-red-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-semibold text-dark mb-2">Pago en Material</h3>
+                <p class="text-gray-600 text-sm mb-4">Pago en metros cúbicos de arena</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 text-sm">Operadores:</span>
+                    <span class="font-medium">9</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de distribución de pagos -->
+        <div class="glass-card rounded-xl p-6 shadow-lg mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-dark">Distribución de Métodos de Pago</h3>
+                <select class="text-sm border border-gray-200 rounded px-3 py-1 bg-white">
+                    <option>Este Mes</option>
+                    <option>Mes Pasado</option>
+                    <option>Últimos 3 Meses</option>
+                </select>
+            </div>
+            <div class="h-64">
+                <canvas id="paymentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabla de pagos -->
+        <div class="glass-card rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-dark">Historial de Pagos Recientes</h3>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-500 rounded-full">Hoy</button>
+                    <button class="px-3 py-1 text-xs bg-primary/10 text-primary rounded-full">Semana</button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-500 rounded-full">Mes</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vueltas</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        <!-- Fila 1 -->
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span class="text-blue-600 font-medium">JL</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">Juan López</div>
+                                        <div class="text-sm text-gray-500">ID: OP-0042</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Volvo FMX 460</div>
+                                <div class="text-sm text-gray-500">Placa: ABC-1234</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">8 vueltas</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">$120.00</div>
+                                <div class="text-xs text-gray-500">Bs. 4,200 / 12 m³</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full flex items-center">
+                                    <i class="fas fa-dollar-sign mr-1 text-xs"></i> Dólares
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                hoy, 10:30 AM
+                            </td>
+                        </tr>
+                        
+                        <!-- Fila 2 -->
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                                        <span class="text-green-600 font-medium">CR</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">Carlos Rojas</div>
+                                        <div class="text-sm text-gray-500">ID: OP-0078</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Mercedes Actros</div>
+                                <div class="text-sm text-gray-500">Placa: XYZ-5678</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">6 vueltas</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">Bs. 21,000</div>
+                                <div class="text-xs text-gray-500">~$60.00 / 6 m³</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded-full flex items-center">
+                                    <i class="fas fa-coins mr-1 text-xs"></i> Bolívares
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                hoy, 09:15 AM
+                            </td>
+                        </tr>
+                        
+                        <!-- Fila 3 -->
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
+                                        <span class="text-red-600 font-medium">MG</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">María González</div>
+                                        <div class="text-sm text-gray-500">ID: OP-0035</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Scania R500</div>
+                                <div class="text-sm text-gray-500">Placa: DEF-9012</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">10 vueltas</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">20 m³</div>
+                                <div class="text-xs text-gray-500">~$200.00 / Bs. 70,000</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full flex items-center">
+                                    <i class="fas fa-cubes mr-1 text-xs"></i> Material
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ayer, 4:45 PM
+                            </td>
+                        </tr>
+                        
+                        <!-- Más filas pueden agregarse aquí -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-100">
+                <span class="text-sm text-gray-500">Mostrando 3 de 128 pagos registrados</span>
+                <button class="text-sm text-primary font-medium hover:text-secondary transition">
+                    Ver todos <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Gráfico de distribución de pagos
+        const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+        const paymentChart = new Chart(paymentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Dólares', 'Bolívares', 'Material'],
+                datasets: [{
+                    data: [65.8, 25.2, 9],
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+
+        // Actualizar hora
+        function updateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('update-time').textContent = new Intl.DateTimeFormat('es-ES', options).format(now);
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
+</body>
+</html>

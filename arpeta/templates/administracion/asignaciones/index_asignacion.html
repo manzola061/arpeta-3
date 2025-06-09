@@ -1,0 +1,234 @@
+{% extends "administracion/base_administracion.html" %}
+
+{% block titulo %}Gestión de Asignaciones{% endblock %}
+
+{% block titulo_seccion %}
+    Gestión de Asignaciones
+{% endblock %}
+
+{% block contenido %}
+
+{% comment %} Bloque de Mensajes de Django (Estilo Consistente) {% endcomment %}
+{% if messages %}
+<div class="space-y-3 mb-6">
+    {% for message in messages %}
+    <div class="p-4 text-sm rounded-lg flex items-center
+                {% if message.tags == 'success' %} bg-green-100 text-green-800 {% endif %}
+                {% if message.tags == 'error' %} bg-red-100 text-red-800 {% endif %}
+                {% if message.tags == 'warning' %} bg-yellow-100 text-yellow-800 {% endif %}
+                {% if message.tags == 'info' %} bg-blue-100 text-blue-800 {% endif %}"
+         role="alert">
+        <i class="fas 
+                  {% if message.tags == 'success' %} fa-check-circle {% endif %}
+                  {% if message.tags == 'error' %} fa-exclamation-circle {% endif %}
+                  {% if message.tags == 'warning' %} fa-exclamation-triangle {% endif %}
+                  {% if message.tags == 'info' %} fa-info-circle {% endif %} mr-3"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% comment %} Fin del Bloque de Mensajes {% endcomment %}
+
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    
+    <div class="p-4 border-b flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
+        <div class="relative w-full md:w-1/3">
+            <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+            <input type="text" id="searchAsignacionInput" placeholder="Buscar Asignación..."
+                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        <a href="{% url 'crear_asignacion' %}" 
+           class="w-full md:w-auto px-4 py-2 bg-primary-600 text-white font-semibold rounded-md hover:bg-primary-700 transition-colors flex items-center justify-center">
+            <i class="fas fa-plus mr-2"></i>
+            Agregar Asignación
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200" id="tablaAsignaciones">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Operador</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Vehículo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Fecha y Estado</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Material</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Vueltas</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Total</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for asignacion in asignaciones %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-gray-500"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ asignacion.operador.nombre }} {{ asignacion.operador.apellido }}</div>
+                                <div class="text-xs text-gray-500">{{ asignacion.operador.cedula }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                <i class="fas fa-truck text-gray-500"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ asignacion.vehiculo.modelo }}</div>
+                                <div class="text-xs text-gray-500">{{ asignacion.vehiculo.placa }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ asignacion.fecha_formateada }}</div>
+                        <div class="text-xs text-gray-500">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if asignacion.estado %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if asignacion.estado %}Activa{% else %}Inactiva{% endif %}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ asignacion.tipo_material|default_if_none:"N/A" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{{ asignacion.total_vueltas }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{{ asignacion.total_material }} m³</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end space-x-3 items-center">
+                            <form action="{% url 'cambiar_estado' asignacion.id %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="text-gray-500 hover:{% if asignacion.estado %}text-red-600{% else %}text-green-600{% endif %}"
+                                        title="{% if asignacion.estado %}Desactivar{% else %}Activar{% endif %}">
+                                    {% if asignacion.estado %}<i class="fas fa-toggle-on fa-lg"></i>{% else %}<i class="fas fa-toggle-off fa-lg"></i>{% endif %}
+                                </button>
+                            </form>
+                            
+                            {% if asignacion.total_vueltas == 0 %}
+                                <a href="{% url 'editar_asignacion' asignacion.id %}" class="text-gray-500 hover:text-yellow-600" title="Editar"><i class="fas fa-pen"></i></a>
+                                <button onclick="confirmarEliminacion('{{ asignacion.id }}')" class="text-gray-500 hover:text-red-600" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            {% else %}
+                                <span class="text-gray-400 cursor-not-allowed" title="No se puede editar (tiene vueltas registradas)"><i class="fas fa-pen"></i></span>
+                                <span class="text-gray-400 cursor-not-allowed" title="No se puede eliminar (tiene vueltas registradas)"><i class="fas fa-trash"></i></span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        <i class="fas fa-folder-open fa-3x text-gray-300 mb-3"></i>
+                        <p class="text-lg">No hay asignaciones registradas.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if asignaciones.has_other_pages %}
+    <div class="p-4 border-t flex justify-center items-center space-x-2 bg-gray-50">
+        {% if asignaciones.has_previous %}
+            <a href="?page={{ asignaciones.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="px-3 py-1 text-sm border rounded-md hover:bg-gray-200">Anterior</a>
+        {% endif %}
+        <span class="text-sm text-gray-700">Página {{ asignaciones.number }} de {{ asignaciones.paginator.num_pages }}</span>
+        {% if asignaciones.has_next %}
+            <a href="?page={{ asignaciones.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="px-3 py-1 text-sm border rounded-md hover:bg-gray-200">Siguiente</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<input type="text" id="qrInput" class="opacity-0 fixed -top-96 -left-96" autofocus>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// --- Lógica para Alertas y QR (Se mantiene la existente y se añade la búsqueda) ---
+
+function confirmarEliminacion(asignacionId) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás revertir esta acción!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `/administracion/asignaciones/borrar_asignacion/${asignacionId}/`;
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // --- BÚSQUEDA EN LA TABLA (NUEVO) ---
+    const searchInput = document.getElementById('searchAsignacionInput');
+    const tableRows = document.querySelectorAll('#tablaAsignaciones tbody tr');
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            
+            tableRows.forEach(row => {
+                // Asegurarse de no ocultar la fila de "sin resultados"
+                if (row.cells.length > 1) { 
+                    const rowText = row.textContent.toLowerCase();
+                    if (rowText.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        });
+    }
+
+    // --- LÓGICA QR (EXISTENTE) ---
+    const qrInput = document.getElementById("qrInput");
+    if (qrInput) {
+        qrInput.addEventListener("change", function () {
+            let placa = qrInput.value.trim();
+            if (placa) {
+                Swal.fire({
+                    title: 'Procesando vuelta...',
+                    html: 'Por favor espere.',
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                fetch("{% url 'registrar_vuelta' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ placa: placa })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        Swal.fire({ icon: 'success', title: '¡Vuelta registrada!', text: data.message, showConfirmButton: false, timer: 2000 })
+                        .then(() => { location.reload(); });
+                    } else if (data.error) {
+                        Swal.fire({ icon: 'error', title: 'Error al Registrar Vuelta', text: data.error });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error en la solicitud:", error);
+                    Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'Ocurrió un error al procesar la vuelta.' });
+                })
+                .finally(() => { qrInput.value = ""; });
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "administracion/base_administracion.html" %}
+
+{% block titulo %}Agregar Vehículo{% endblock %}
+
+{% block titulo_seccion %}
+    <div class="flex items-center space-x-2">
+        <a href="{% url 'vehiculos' %}" class="text-gray-500 hover:text-gray-700 transition">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2 class="text-xl font-semibold text-gray-800">Agregar Nuevo Vehículo</h2>
+    </div>
+{% endblock %}
+
+{% block contenido %}
+
+<div class="bg-white p-6 rounded-lg shadow">
+    <form enctype="multipart/form-data" method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                    <label for="{{ formulario.placa.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ formulario.placa.label }}
+                        {% if formulario.placa.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    <input type="text" name="{{ formulario.placa.name }}" id="{{ formulario.placa.id_for_label }}" value="{{ formulario.placa.value|default_if_none:'' }}"
+                           class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                    {% if formulario.placa.errors %}
+                        <p class="text-sm text-red-600 mt-1">{{ formulario.placa.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-1">
+                    <label for="{{ formulario.modelo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ formulario.modelo.label }}
+                        {% if formulario.modelo.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <select name="{{ formulario.modelo.name }}" id="{{ formulario.modelo.id_for_label }}" class="flex-grow block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                            {% for value, text in formulario.modelo.field.choices %}
+                                <option value="{{ value }}" {% if formulario.modelo.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" id="btnNuevoModelo" class="flex-shrink-0 bg-primary-600 text-white rounded-md p-2 hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" aria-label="Agregar nuevo modelo">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                     {% if formulario.modelo.errors %}
+                        <p class="text-sm text-red-600 mt-1">{{ formulario.modelo.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="space-y-1">
+                    <label for="{{ formulario.alto.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ formulario.alto.label }}</label>
+                    <input type="number" step="0.01" name="{{ formulario.alto.name }}" id="{{ formulario.alto.id_for_label }}" value="{{ formulario.alto.value|default_if_none:'' }}"
+                           class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                    {% if formulario.alto.errors %}<p class="text-sm text-red-600 mt-1">{{ formulario.alto.errors.as_text }}</p>{% endif %}
+                </div>
+                <div class="space-y-1">
+                    <label for="{{ formulario.ancho.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ formulario.ancho.label }}</label>
+                    <input type="number" step="0.01" name="{{ formulario.ancho.name }}" id="{{ formulario.ancho.id_for_label }}" value="{{ formulario.ancho.value|default_if_none:'' }}"
+                           class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                    {% if formulario.ancho.errors %}<p class="text-sm text-red-600 mt-1">{{ formulario.ancho.errors.as_text }}</p>{% endif %}
+                </div>
+                <div class="space-y-1">
+                    <label for="{{ formulario.largo.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ formulario.largo.label }}</label>
+                    <input type="number" step="0.01" name="{{ formulario.largo.name }}" id="{{ formulario.largo.id_for_label }}" value="{{ formulario.largo.value|default_if_none:'' }}"
+                           class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                    {% if formulario.largo.errors %}<p class="text-sm text-red-600 mt-1">{{ formulario.largo.errors.as_text }}</p>{% endif %}
+                </div>
+            </div>
+
+            {% for campo in formulario %}
+                {% if campo.name not in "placa,modelo,alto,ancho,largo,foto_vehiculo,codigo_qr" %}
+                <div class="space-y-1">
+                     <label for="{{ campo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ campo.label }}
+                        {% if campo.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    {% if campo.field.widget.input_type == "checkbox" %}
+                        <div class="flex items-center space-x-6 pt-2">
+                            <label class="flex items-center"><input type="radio" name="{{ campo.name }}" value="True" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500" {% if campo.value %}checked{% endif %}><span class="ml-2 text-sm text-gray-700">Sí</span></label>
+                            <label class="flex items-center"><input type="radio" name="{{ campo.name }}" value="False" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500" {% if not campo.value and campo.form.is_bound %}checked{% endif %}><span class="ml-2 text-sm text-gray-700">No</span></label>
+                        </div>
+                    {% else %}
+                        <input type="{{ campo.field.widget.input_type }}" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default_if_none:'' }}"
+                               class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+                    {% endif %}
+                    {% if campo.errors %}<p class="text-sm text-red-600 mt-1">{{ campo.errors.as_text }}</p>{% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% if formulario.codigo_qr %}
+                <input type="hidden" name="{{ formulario.codigo_qr.name }}" value="{{ formulario.codigo_qr.value|default_if_none:'' }}">
+            {% endif %}
+
+            <div class="md:col-span-2">
+                <label for="{{ formulario.foto_vehiculo.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ formulario.foto_vehiculo.label }}</label>
+                <div class="mt-1 flex items-center space-x-4">
+                    <img id="imagePreview" src="{% if formulario.instance.foto_vehiculo %}{{ formulario.instance.foto_vehiculo.url }}{% else %}https://via.placeholder.com/150x150?text=Vehículo{% endif %}" alt="Vista previa del vehículo" class="h-28 w-28 rounded-lg object-cover bg-gray-100 border">
+                    <div>
+                        <input type="file" name="{{ formulario.foto_vehiculo.name }}" id="{{ formulario.foto_vehiculo.id_for_label }}" accept="image/*" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    </div>
+                </div>
+                {% if formulario.foto_vehiculo.errors %}<p class="text-sm text-red-600 mt-1">{{ formulario.foto_vehiculo.errors.as_text }}</p>{% endif %}
+            </div>
+
+        </div>
+
+        <div class="pt-5 border-t border-gray-200">
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'vehiculos' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">Guardar Vehículo</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Script para la vista previa de la imagen
+    const imageUploadInput = document.getElementById('{{ formulario.foto_vehiculo.id_for_label }}');
+    const imagePreview = document.getElementById('imagePreview');
+    if (imageUploadInput) {
+        imageUploadInput.addEventListener('change', function(event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { imagePreview.src = e.target.result; }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        });
+    }
+
+    // --- Script para el modal de agregar nuevo modelo ---
+    const btnNuevoModelo = document.getElementById('btnNuevoModelo');
+    if (btnNuevoModelo) {
+        btnNuevoModelo.addEventListener('click', async () => {
+            const { value: formValues } = await Swal.fire({
+                title: 'Agregar Nuevo Modelo y Marca',
+                html: `<input id="swal-input-marca" class="swal2-input" placeholder="Marca del vehículo"><input id="swal-input-modelo" class="swal2-input" placeholder="Nombre del modelo">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Guardar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    const marca = document.getElementById('swal-input-marca').value;
+                    const modelo = document.getElementById('swal-input-modelo').value;
+                    if (!marca || !modelo) {
+                        Swal.showValidationMessage('Ambos campos son obligatorios');
+                        return false;
+                    }
+                    return { marca: marca, modelo: modelo };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const response = await fetch("{% url 'crear_modelo_marca' %}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                        body: JSON.stringify(formValues),
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        const selectModelo = document.querySelector('select[name="modelo"]');
+                        const option = new Option(`${data.marca} - ${data.modelo}`, data.id, true, true);
+                        selectModelo.appendChild(option);
+                        Swal.fire({ icon: 'success', title: '¡Modelo agregado!', text: `Se ha agregado y seleccionado "${data.marca} - ${data.modelo}".`, showConfirmButton: false, timer: 2000 });
+                    } else {
+                         Swal.fire('Error', data.error || 'No se pudo agregar el modelo.', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error de Conexión', 'Hubo un problema al comunicarse con el servidor.', 'error');
+                }
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}
