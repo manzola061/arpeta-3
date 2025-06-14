@@ -139,6 +139,14 @@ USE_TZ = True                 # Usa información de zona horaria en datetimes.
 # URL para servir archivos estáticos (CSS, JS, imágenes).
 STATIC_URL = 'static/'
 
+# Si usas STATIC_ROOT para producción (es para collectstatic)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Si tienes archivos estáticos a nivel de proyecto o en otras ubicaciones
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'), # Asegúrate de que esta línea exista si pusiste Font Awesome aquí
+]
+
 # Tipo de campo para claves primarias automáticas (BigAutoField para mayor rango).
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
