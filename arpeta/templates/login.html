@@ -13,7 +13,7 @@
             <h1 class="text-center text-5xl text-gray-600 font-bold mb-6">ARPETA</h1>
             <h2 class="text-center text-2xl text-gray-600 mb-4">Iniciar Sesión</h2>
             <form method="post" class="space-y-4 w-full">
-                {% csrf_token %} <!-- Token de seguridad para formularios en Django -->
+                {% csrf_token %}
                 <div>
                     <input type="email" name="username" class="w-full p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Correo Electrónico" value="{{ form.username.value|default:'' }}">
                 </div>
@@ -29,7 +29,6 @@
                 </button>
             </form>
 
-            <!-- Mostrar mensajes de error -->
             {% if messages %}
                 <div class="mt-4">
                     {% for message in messages %}
@@ -44,15 +43,12 @@
     </div>
 
     <script>
-        // Funcionalidad para mostrar/ocultar la contraseña
         const togglePassword = document.querySelector('#togglePassword');
         const password = document.querySelector('#password');
 
         togglePassword.addEventListener('click', function (e) {
-            // Cambia el tipo de input entre 'password' y 'text'
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
-            // Cambia el texto del botón
             this.textContent = type === 'password' ? 'Mostrar' : 'Ocultar';
         });
     </script>

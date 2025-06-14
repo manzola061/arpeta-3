@@ -18,17 +18,23 @@
 <div class="bg-white p-6 md:p-8 rounded-lg shadow">
     <form enctype="multipart/form-data" method="post" class="space-y-6">
         {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <input type="hidden" name="cedula" value="{{ formulario.instance.cedula }}">
+            <div class="space-y-1">
+                <label for="{{ formulario.cedula.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    {{ formulario.cedula.label }}
+                </label>
+                <input type="text" value="{{ formulario.instance.cedula }}" disabled
+                       class="block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-500 cursor-not-allowed">
+                <p class="text-xs text-gray-500">La cédula no puede ser modificada.</p>
+            </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-            
             {% for campo in formulario %}
-                {% if campo.name != 'cedula' and campo.name != 'foto_operador' %}
+                {% if campo.name not in "cedula,foto_operador" %}
                     <div class="space-y-1 {% if campo.name == 'direccion' %}md:col-span-2{% endif %}">
                         <label for="{{ campo.id_for_label }}" class="block text-sm font-medium text-gray-700">
                             {{ campo.label }}
-                            {% if campo.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
                         </label>
                         
                         {% if campo.field.widget.input_type == "checkbox" %}
@@ -44,6 +50,21 @@
                             </div>
                         {% elif campo.name == 'direccion' %}
                             <textarea id="{{ campo.id_for_label }}" name="{{ campo.name }}" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">{{ campo.value|default_if_none:'' }}</textarea>
+                        
+                        {% elif campo.name == 'nombre' %}
+                            <input type="{{ campo.field.widget.input_type }}" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default_if_none:'' }}"
+                                   maxlength="50"
+                                   class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+
+                        {% elif campo.name == 'apellido' %}
+                            <input type="{{ campo.field.widget.input_type }}" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default_if_none:'' }}"
+                                   maxlength="50"
+                                   class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
+
+                        {% elif campo.name == 'correo' %}
+                             <input type="{{ campo.field.widget.input_type }}" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default_if_none:'' }}"
+                                   maxlength="100"
+                                   class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
                         {% else %}
                             <input type="{{ campo.field.widget.input_type }}" name="{{ campo.name }}" id="{{ campo.id_for_label }}" value="{{ campo.value|default_if_none:'' }}"
                                    class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
@@ -93,25 +114,54 @@
     </form>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const imageUploadInput = document.getElementById('{{ formulario.foto_operador.id_for_label }}');
-        const imagePreview = document.getElementById('imagePreview');
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        if (imageUploadInput && imagePreview) {
-            imageUploadInput.addEventListener('change', function(event) {
-                if (event.target.files && event.target.files[0]) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                    }
-                    
-                    reader.readAsDataURL(event.target.files[0]);
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageUploadInput = document.getElementById('{{ formulario.foto_operador.id_for_label }}');
+    const imagePreview = document.getElementById('imagePreview');
+    const defaultImageSrc = imagePreview.src;
+
+    if (imageUploadInput && imagePreview) {
+        imageUploadInput.addEventListener('change', function(event) {
+            const file = event.target.files?.[0];
+
+            if (file) {
+                const maxFileSize = 2 * 1024 * 1024; // 2MB
+
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Formato no permitido',
+                        text: 'Por favor, sube un archivo de imagen válido (ej. JPG, PNG, GIF).'
+                    });
+                    imageUploadInput.value = '';
+                    imagePreview.src = defaultImageSrc;
+                    return;
                 }
-            });
-        }
-    });
+
+                if (file.size > maxFileSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Archivo demasiado grande',
+                        text: 'La imagen no debe pesar más de 2MB.'
+                    });
+                    imageUploadInput.value = '';
+                    imagePreview.src = defaultImageSrc;
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = defaultImageSrc;
+            }
+        });
+    }
+});
 </script>
 
 {% endblock %}

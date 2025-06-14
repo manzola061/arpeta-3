@@ -23,9 +23,13 @@
                 <div class="space-y-1">
                     <label for="{{ formulario.placa.id_for_label }}" class="block text-sm font-medium text-gray-700">
                         {{ formulario.placa.label }}
-                        {% if formulario.placa.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
                     </label>
-                    <input type="text" name="{{ formulario.placa.name }}" id="{{ formulario.placa.id_for_label }}" value="{{ formulario.placa.value|default_if_none:'' }}"
+                    <input type="text" 
+                           name="{{ formulario.placa.name }}" 
+                           id="{{ formulario.placa.id_for_label }}" 
+                           value="{{ formulario.placa.value|default_if_none:'' }}"
+                           maxlength="6"
+                           oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
                            class="block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
                     {% if formulario.placa.errors %}
                         <p class="text-sm text-red-600 mt-1">{{ formulario.placa.errors.as_text }}</p>
@@ -35,7 +39,6 @@
                 <div class="space-y-1">
                     <label for="{{ formulario.modelo.id_for_label }}" class="block text-sm font-medium text-gray-700">
                         {{ formulario.modelo.label }}
-                        {% if formulario.modelo.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
                     </label>
                     <div class="flex items-center space-x-2">
                         <select name="{{ formulario.modelo.name }}" id="{{ formulario.modelo.id_for_label }}" class="flex-grow block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500">
@@ -126,26 +129,56 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Script para la vista previa de la imagen
     const imageUploadInput = document.getElementById('{{ formulario.foto_vehiculo.id_for_label }}');
     const imagePreview = document.getElementById('imagePreview');
+    const defaultImageSrc = imagePreview.src;
+
     if (imageUploadInput) {
         imageUploadInput.addEventListener('change', function(event) {
-            if (event.target.files && event.target.files[0]) {
+            const file = event.target.files[0];
+            
+            if (file) {
+                const maxFileSize = 2 * 1024 * 1024;
+
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Formato no permitido',
+                        text: 'Por favor, sube un archivo de imagen válido.'
+                    });
+                    imageUploadInput.value = '';
+                    imagePreview.src = defaultImageSrc;
+                    return;
+                }
+
+                if (file.size > maxFileSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Archivo demasiado grande',
+                        text: 'La imagen no debe pesar más de 2MB.'
+                    });
+                    imageUploadInput.value = '';
+                    imagePreview.src = defaultImageSrc;
+                    return;
+                }
+                
                 const reader = new FileReader();
-                reader.onload = function(e) { imagePreview.src = e.target.result; }
-                reader.readAsDataURL(event.target.files[0]);
+                reader.onload = function(e) { 
+                    imagePreview.src = e.target.result; 
+                }
+                reader.readAsDataURL(file);
+            } else {
+                 imagePreview.src = defaultImageSrc;
             }
         });
     }
 
-    // --- Script para el modal de agregar nuevo modelo ---
     const btnNuevoModelo = document.getElementById('btnNuevoModelo');
     if (btnNuevoModelo) {
         btnNuevoModelo.addEventListener('click', async () => {
             const { value: formValues } = await Swal.fire({
                 title: 'Agregar Nuevo Modelo y Marca',
-                html: `<input id="swal-input-marca" class="swal2-input" placeholder="Marca del vehículo"><input id="swal-input-modelo" class="swal2-input" placeholder="Nombre del modelo">`,
+                html: `<input id="swal-input-marca" class="swal2-input" placeholder="Marca del vehículo" maxlength="50"><input id="swal-input-modelo" class="swal2-input" placeholder="Nombre del modelo" maxlength="50">`,
                 focusConfirm: false,
                 showCancelButton: true,
                 confirmButtonText: 'Guardar',
@@ -185,5 +218,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
 {% endblock %}

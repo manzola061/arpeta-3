@@ -85,7 +85,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'arpeta_3',
+        'NAME': 'arpeta_4',
         'USER': 'postgres',
         'PASSWORD': 'mia2712',
         'HOST': 'localhost',

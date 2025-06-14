@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from io import BytesIO
 import os
@@ -12,9 +12,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 # Modelo que representa a un Operador
 class Operador(models.Model):
-    cedula = models.CharField(primary_key=True, max_length=10, verbose_name='Cédula')
-    nombre = models.CharField(max_length=25, verbose_name='Nombre')
-    apellido = models.CharField(max_length=25, verbose_name='Apellido')
+    cedula = models.CharField(primary_key=True, max_length=8, verbose_name='Cédula')
+    nombre = models.CharField(max_length=50, verbose_name='Nombre')
+    apellido = models.CharField(max_length=50, verbose_name='Apellido')
     telefono = PhoneNumberField(region='VE', verbose_name='Teléfono')
     correo = models.EmailField(max_length=100, verbose_name='Correo Electrónico')
     direccion = models.TextField(verbose_name='Dirección')
@@ -82,9 +82,21 @@ class Modelo(models.Model):
 class Vehiculo(models.Model):
     placa = models.CharField(primary_key=True, max_length=6, verbose_name="Placa")
     modelo = models.ForeignKey(Modelo, on_delete=models.CASCADE, verbose_name="Modelo")
-    alto = models.DecimalField(decimal_places=2, default=0.00, max_digits=4, validators=[MinValueValidator(1.00)], verbose_name="Alto (metros)")
-    ancho = models.DecimalField(decimal_places=2, default=0.00, max_digits=4, validators=[MinValueValidator(1.00)], verbose_name="Ancho (metros)")
-    largo = models.DecimalField(decimal_places=2, default=0.00, max_digits=4, validators=[MinValueValidator(1.00)], verbose_name="Largo (metros)")
+    alto = models.DecimalField(
+        decimal_places=2,
+        max_digits=4,
+        validators=[MinValueValidator(1.00), MaxValueValidator(4.10)],
+        verbose_name="Alto (metros)")
+    ancho = models.DecimalField(
+        decimal_places=2,
+        max_digits=4,
+        validators=[MinValueValidator(1.00), MaxValueValidator(2.60)],
+        verbose_name="Ancho (metros)")
+    largo = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        validators=[MinValueValidator(1.00), MaxValueValidator(12.20)],
+        verbose_name="Largo (metros)")
     foto_vehiculo = models.ImageField(upload_to="vehiculos/", blank=True, null=True, verbose_name="Foto del Vehículo")
     codigo_qr = models.ImageField(upload_to="codigos_qr/", verbose_name="Código QR")
     activo = models.BooleanField(default=True, verbose_name="Activo")
@@ -191,4 +203,4 @@ class Asignacion(models.Model):
 
     # Representación en cadena del modelo Asignacion
     def __str__(self):
-        return f"Cédula Operador: {self.operador.cedula} - Placa Vehículo: {self.vehiculo.placa} - Fecha Asignación: {self.fecha_formateada} - Tipo Material: {self.tipo_material.nombre if self.tipo_material else 'N/A'} - Total Vueltas: {self.total_vueltas} - Total Material: {self.total_material} m³ - Estado: {self.estado_texto}"
+        return f"Cédula Operador: {self.operador.cedula} -Placa Vehículo: {self.vehiculo.placa} - Fecha Asignación: {self.fecha_formateada} - Tipo Material: {self.tipo_material.nombre if self.tipo_material else 'N/A'} - Total Vueltas: {self.total_vueltas} - Total Material: {self.total_material} m³ - Estado: {self.estado_texto}"

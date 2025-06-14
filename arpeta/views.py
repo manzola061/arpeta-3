@@ -121,9 +121,6 @@ def crear_operador(request):
 @user_passes_test(is_administracion)
 def editar_operador(request, cedula):
     operador = get_object_or_404(Operador, cedula=cedula)
-    if Asignacion.objects.filter(operador=operador).exists():
-        messages.error(request, f"El operador {operador.nombre} {operador.apellido} (Cédula: {operador.cedula}) no puede ser editado porque tiene asignaciones registradas.")
-        return redirect('operadores')
     if request.method == "POST":
         formulario = OperadorForm(request.POST, request.FILES, instance=operador)
         if formulario.is_valid():
