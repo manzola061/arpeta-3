@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = event.target.files?.[0];
 
             if (file) {
-                const maxFileSize = 2 * 1024 * 1024; // 2MB
+                const maxFileSize = 2 * 1024 * 1024;
 
                 if (!file.type.startsWith('image/')) {
                     Swal.fire({

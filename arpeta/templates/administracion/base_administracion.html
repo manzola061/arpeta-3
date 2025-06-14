@@ -6,11 +6,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block titulo %}{% endblock %} | ARPETA</title>
-
     <script src="https://kit.fontawesome.com/178fa077d5.js" crossorigin="anonymous"></script>
-    
-    <script src="{% static 'tailwind.js' %}"></script>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -33,9 +31,8 @@
             }
         }
     </script>
-    
+
     <style>
-        /* Transición simple para el sidebar */
         #sidebar {
             transition: width 0.3s ease-in-out;
         }
@@ -110,10 +107,9 @@
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const navTexts = document.querySelectorAll('.nav-text');
-            
-            // Estado inicial del sidebar (colapsado por defecto)
-            const SIDEBAR_EXPANDED_WIDTH = '256px'; // 16rem
-            const SIDEBAR_COLLAPSED_WIDTH = '68px'; // Aprox 4.25rem
+
+            const SIDEBAR_EXPANDED_WIDTH = '256px';
+            const SIDEBAR_COLLAPSED_WIDTH = '68px';
 
             let isExpanded = localStorage.getItem('sidebarExpanded') === 'true';
 
@@ -133,17 +129,14 @@
                 }
             }
 
-            // Aplicar estado al cargar la página
             applySidebarState();
 
-            // Evento para el botón
             sidebarToggle.addEventListener('click', function() {
                 isExpanded = !isExpanded;
                 localStorage.setItem('sidebarExpanded', isExpanded);
                 applySidebarState();
             });
 
-            // Resaltar el enlace de navegación activo
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('aside nav a');
             navLinks.forEach(link => {

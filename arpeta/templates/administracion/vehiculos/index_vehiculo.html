@@ -17,7 +17,7 @@
                 {% if message.tags == 'error' %} bg-red-100 text-red-800 {% endif %}
                 {% if message.tags == 'warning' %} bg-yellow-100 text-yellow-800 {% endif %}
                 {% if message.tags == 'info' %} bg-blue-100 text-blue-800 {% endif %}"
-         role="alert">
+          role="alert">
         <i class="fas 
                   {% if message.tags == 'success' %} fa-check-circle {% endif %}
                   {% if message.tags == 'error' %} fa-exclamation-circle {% endif %}
@@ -31,7 +31,7 @@
 
 
 <div class="bg-white rounded-lg shadow overflow-hidden">
-    
+
     <div class="p-4 border-b flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
         <div class="relative w-full md:w-1/3">
             <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
@@ -94,7 +94,7 @@
                             </button>
 
                             {% asignaciones_por_vehiculo vehiculo as num_asignaciones %}
-                            
+
                             {% if num_asignaciones == 0 %}
                                 <a href="{% url 'editar_vehiculo' vehiculo.placa %}" class="text-gray-500 hover:text-yellow-600" title="Editar">
                                     <i class="fas fa-pen"></i>
@@ -147,7 +147,7 @@
 <div id="modalCorreo" class="fixed inset-0 z-50 hidden overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="fixed inset-0 bg-black opacity-50" onclick="cerrarModalCorreo()"></div>
-        
+
         <div class="bg-white rounded-lg shadow-xl transform transition-all w-full max-w-md z-10">
             <div class="p-4 border-b flex justify-between items-center bg-gray-100">
                 <h3 class="text-lg font-semibold text-gray-800">Enviar QR del vehículo <span id="placaModalCorreo" class="font-bold text-primary-700"></span></h3>
@@ -155,7 +155,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div class="p-6">
                 <form id="formCorreo" method="POST" onsubmit="event.preventDefault(); enviarCorreo();">
                     {% csrf_token %}
@@ -165,7 +165,7 @@
                     </div>
                 </form>
             </div>
-            
+
             <div class="px-6 py-3 bg-gray-100 border-t flex justify-end space-x-3">
                 <button type="button" onclick="cerrarModalCorreo()" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
                     Cancelar
@@ -220,23 +220,24 @@
         formData.append('csrfmiddlewaretoken', form.elements.csrfmiddlewaretoken.value);
 
         try {
-            const response = await fetch(`/administracion/enviar_qr_por_correo/${placaActualParaCorreo}`, {
+            const response = await fetch(`/administracion/enviar_qr_correo/${placaActualParaCorreo}`, {
                 method: 'POST',
                 body: formData,
             });
             
-            const responseText = await response.text();
+            const data = await response.json(); 
+
             if (response.ok) {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Enviado!',
-                    text: responseText,
+                    text: data.message,
                     showConfirmButton: false,
                     timer: 2500
                 });
                 cerrarModalCorreo();
             } else {
-                Swal.fire('Error', responseText || `Ocurrió un error (Código: ${response.status})`, 'error');
+                Swal.fire('Error', data.message || `Ocurrió un error (Código: ${response.status})`, 'error');
             }
         } catch (error) {
             console.error('Error en fetch:', error);

@@ -9,7 +9,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
 
 
-    path('reset_password/', auth_views.PasswordResetView.as_view(template_name="password_reset/password_reset_form.html"), name='password_reset'),
+    path('reset_password/', auth_views.PasswordResetView.as_view(template_name="password_reset/password_reset_form.html", email_template_name="password_reset/password_reset_email.html", html_email_template_name="password_reset/password_reset_email.html"), name='password_reset'),
     path('reset_password_done/', auth_views.PasswordResetDoneView.as_view(template_name="password_reset/password_reset_done.html"), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name="password_reset/password_reset_confirm.html"), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name="password_reset/password_reset_complete.html"), name='password_reset_complete'),
@@ -29,6 +29,8 @@ urlpatterns = [
     path('administracion/crear_modelo_marca/', views.crear_modelo_marca, name='crear_modelo_marca'),
     path('administracion/descargar_qr/<str:placa>/', views.descargar_qr, name='descargar_qr'),
 
+    path('administracion/enviar_qr_correo/<str:placa>', views.enviar_qr_correo, name='enviar_qr_correo'),
+
     path('administracion/asignaciones', views.asignaciones, name='asignaciones'),
     path('administracion/asignaciones/crear_asignacion', views.crear_asignacion, name='crear_asignacion'),
     path('administracion/asignaciones/editar_asignacion/<int:id>/', views.editar_asignacion, name='editar_asignacion'),
@@ -36,7 +38,6 @@ urlpatterns = [
     path("administracion/crear_tipo_material/", views.crear_tipo_material, name="crear_tipo_material"),
     path('administracion/cambiar_estado/<int:id>/', views.cambiar_estado, name='cambiar_estado'),
     path("administracion/registrar_vuelta/", views.registrar_vuelta, name="registrar_vuelta"),
-    path('administracion/enviar_qr_por_correo/<str:placa>', views.enviar_qr_por_correo, name='enviar_qr_por_correo'),
 
     path('gerente/inicio_gerente.html', views.inicio_gerente, name='inicio_gerente'),
     path('gerente/base_gerente.html', views.base_gerente, name='base_gerente'),

@@ -473,27 +473,58 @@ def registrar_vuelta(request):
 # Vista para enviar el código QR de un vehículo por correo electrónico
 @login_required
 @user_passes_test(is_administracion)
-def enviar_qr_por_correo(request, placa):
+def enviar_qr_correo(request, placa):
     vehiculo = get_object_or_404(Vehiculo, placa=placa)
     if request.method == 'POST':
-        correo = request.POST.get('correo')
-        if vehiculo.codigo_qr:
-            subject = f"Código QR del vehículo {vehiculo.placa}"
-            message = render_to_string('correo_qr.html', {'vehiculo': vehiculo})
-            send_mail(
+        correo_destino = request.POST.get('correo')
+        if not correo_destino:
+            messages.error(request, 'No se proporcionó una dirección de correo válida.')
+            return JsonResponse({'message': 'No se proporcionó una dirección de correo válida.'}, status=400)
+        nombre_completo_operador = "Operador"
+        try:
+            operador = Operador.objects.get(correo__iexact=correo_destino)
+            nombre_completo_operador = f"{operador.nombre} {operador.apellido}"
+        except Operador.DoesNotExist:
+            pass
+        if vehiculo.codigo_qr and vehiculo.codigo_qr.file:
+            subject = f"Código QR del vehículo {vehiculo.placa} - ARPETA"
+            html_content = render_to_string('administracion/correo_qr.html', {
+                'vehiculo': vehiculo,
+                'nombre_operador': nombre_completo_operador
+            })
+            email = EmailMessage(
                 subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [correo],
-                fail_silently=False,
+                html_content,
+                settings.DEFAULT_FROM_EMAIL,
+                [correo_destino],
             )
-            return HttpResponse('Correo enviado exitosamente!')
+            email.content_subtype = "html"
+            qr_file_path = vehiculo.codigo_qr.path 
+            try:
+                email.attach_file(qr_file_path, mimetype='image/png')
+                email.send(fail_silently=False)
+                messages.success(request, '¡El código QR se envió por correo exitosamente!')
+                return JsonResponse({'message': 'Correo enviado exitosamente!'})
+            except FileNotFoundError:
+                messages.error(request, 'Error: El archivo QR no se encontró en el servidor.')
+                return JsonResponse({'message': 'Error: El archivo QR no se encontró en el servidor.'}, status=500)
+            except Exception as e:
+                messages.error(request, f'Error al enviar el correo: {e}')
+                print(f"Error al enviar correo para {vehiculo.placa} a {correo_destino}: {e}")
+                return JsonResponse({'message': f'Error al enviar el correo: {e}'}, status=500)
         else:
-            return HttpResponse('El vehículo no tiene código QR.')
+            messages.error(request, 'El vehículo no tiene un código QR asociado.')
+            return JsonResponse({'message': 'El vehículo no tiene código QR.'}, status=400)
     else:
-        return render(request, 'correo_qr.html', {'vehiculo': vehiculo})
+        messages.warning(request, 'Acceso no permitido.')
+        return JsonResponse({'message': 'Método no permitido.'}, status=405)
 
 
+# --------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------------------
