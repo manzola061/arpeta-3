@@ -27,6 +27,10 @@
                 <button type="submit" class="w-full py-3 bg-sky-600 text-white text-lg font-semibold rounded-lg hover:bg-sky-800 transition-colors">
                     Iniciar sesión
                 </button>
+
+                <div class="text-center mt-4">
+                    <a href="{% url 'password_reset' %}" class="text-sky-600 hover:text-sky-800 text-base">¿Olvidaste tu contraseña?</a>
+                </div>
             </form>
 
             {% if messages %}

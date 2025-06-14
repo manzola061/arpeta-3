@@ -1,34 +1,41 @@
 """
-Configuración de Django para el proyecto sistema.
+Configuración de Django para el proyecto ARPETA.
 """
 
 import os
 from pathlib import Path
 
-# --- Configuración Principal ---
+# --- Configuración Base ---
+# --------------------------------------------------------------------------
 
-# Directorio base del proyecto.
+# Directorio raíz del proyecto (donde se encuentra manage.py).
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Clave secreta para la seguridad de la aplicación.
-# ¡IMPORTANTE: Mantener en secreto en producción!
+# Ruta para las plantillas HTML globales del proyecto.
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+
+
+# --- Seguridad y Modo de Ejecución ---
+# --------------------------------------------------------------------------
+
+# Clave secreta para seguridad (¡mantener en secreto en producción!).
 SECRET_KEY = 'django-insecure-)wgph*m*(kdpp+s$zz(bd4hy2g-1)xkrtiks-o4_o!)&*3#+2@'
 
-# Clave para la encriptación Fernet para códigos QR.
+# Clave para encriptación Fernet (para códigos QR).
 FERNET_KEY = b'0k8nLk92yO-zLogb8MWaqyj2ihyl_m-dHYtlzgc7euU='
 
-# Modo de depuración.
-# ¡IMPORTANTE: Desactivar en producción!
+# Modo de depuración (DEBUG). ¡Debe ser False en producción!
 DEBUG = True
 
-# Hosts permitidos para la aplicación.
+# Hosts permitidos para la aplicación (ej. 'tudominio.com').
+# En desarrollo, generalmente incluye '127.0.0.1' y 'localhost'.
 ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '::1']
 
 
-
-
-
-# --- Definición de Aplicaciones y Middleware ---
+# --- Aplicaciones y Middleware ---
+# --------------------------------------------------------------------------
 
 # Aplicaciones instaladas en el proyecto.
 INSTALLED_APPS = [
@@ -38,10 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'arpeta', 
+    'django.contrib.sites',  # Necesario para el dominio en los correos de recuperación.
+    'arpeta',
 ]
 
-# Componentes de middleware utilizados.
+# ID del sitio actual (usado por `django.contrib.sites`).
+SITE_ID = 1
+
+# Componentes de middleware que procesan las peticiones.
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,14 +70,14 @@ ROOT_URLCONF = 'sistema.urls'
 WSGI_APPLICATION = 'sistema.wsgi.application'
 
 
-# --- Plantillas ---
+# --- Configuración de Plantillas ---
+# --------------------------------------------------------------------------
 
-# Configuración del motor de plantillas.
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Directorio de plantillas global
-        'APP_DIRS': True, # Buscar plantillas en directorios de aplicaciones
+        'DIRS': [TEMPLATE_DIR],  # Directorio de plantillas global.
+        'APP_DIRS': True,        # Busca plantillas dentro de cada aplicación.
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -79,9 +90,10 @@ TEMPLATES = [
 ]
 
 
-# --- Bases de Datos ---
+# --- Base de Datos ---
+# --------------------------------------------------------------------------
 
-# Configuración de la conexión a la base de datos.
+# Configuración de la conexión a la base de datos PostgreSQL.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -95,84 +107,65 @@ DATABASES = {
 
 
 # --- Validación de Contraseñas ---
+# --------------------------------------------------------------------------
 
-# Validadores para la seguridad de las contraseñas.
+# Validadores para la seguridad de las contraseñas de usuario.
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 
 # --- Internacionalización ---
+# --------------------------------------------------------------------------
 
-# Código de idioma.
-LANGUAGE_CODE = 'es'
-
-# Zona horaria.
-TIME_ZONE = 'America/Caracas'
-
-# Activar el sistema de traducción.
-USE_I18N = True
-
-# Usar información de zona horaria.
-USE_TZ = True
+LANGUAGE_CODE = 'es'          # Idioma de la aplicación.
+TIME_ZONE = 'America/Caracas' # Zona horaria (Venezuela).
+USE_I18N = True               # Activa el sistema de traducción.
+USE_TZ = True                 # Usa información de zona horaria en datetimes.
 
 
-# --- Archivos Estáticos y Multimedia ---
+# --- Archivos Estáticos ---
+# --------------------------------------------------------------------------
 
-# URL para archivos estáticos.
-# settings.py
+# URL para servir archivos estáticos (CSS, JS, imágenes).
 STATIC_URL = '/static/'
+# Directorio donde Django recolectará los archivos estáticos en producción.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Directorios adicionales para buscar archivos estáticos.
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Para producción, necesitarás esto para servir archivos estáticos en PDF
-if DEBUG:
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Nota: La lógica 'if DEBUG' para STATICFILES_DIRS vs STATIC_ROOT no es necesaria
+# en la mayoría de los casos modernos de despliegue.
 
-# --- Clave Primaria por Defecto ---
-
-# Tipo de campo para claves primarias automáticas.
+# Tipo de campo para claves primarias automáticas (BigAutoField para mayor rango).
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # --- Autenticación ---
+# --------------------------------------------------------------------------
 
-# URL de inicio de sesión.
+# URL de redirección para inicio de sesión requerido.
 LOGIN_URL = '/login/'
 
-# Backends de autenticación.
+# Backends de autenticación para verificar usuarios.
 AUTHENTICATION_BACKENDS = [
-    'arpeta.backends.EmailAuthBackend', # Autenticación por email
-    'django.contrib.auth.backends.ModelBackend', # Autenticación por defecto de Django
+    'arpeta.backends.EmailAuthBackend',  # Autenticación personalizada por email.
+    'django.contrib.auth.backends.ModelBackend', # Autenticación por defecto de Django.
 ]
 
 
 # --- Configuración de Correo Electrónico ---
+# --------------------------------------------------------------------------
 
-# Backend para envío de correos.
+# Backend para el envío de correos (SMTP para correos reales).
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# Servidor SMTP.
-EMAIL_HOST = 'smtp.gmail.com'
-# Puerto SMTP.
-EMAIL_PORT = 587
-# Usar TLS para la conexión.
-EMAIL_USE_TLS = True
-# Usuario SMTP.
-EMAIL_HOST_USER = 'arpetasistema@gmail.com'
-# Contraseña SMTP.
-EMAIL_HOST_PASSWORD = 'sistema123'
-# Remitente por defecto para correos del sistema.
-DEFAULT_FROM_EMAIL = 'astryrosendo33@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'       # Servidor SMTP (ej. Gmail).
+EMAIL_PORT = 587                    # Puerto SMTP (587 para TLS).
+EMAIL_USE_TLS = True                # Usar TLS para conexión segura.
+EMAIL_HOST_USER = 'manzola416@gmail.com' # Tu dirección de correo.
+# Contraseña de la cuenta de correo. ¡Usa una contraseña de aplicación para Gmail!
+EMAIL_HOST_PASSWORD = 'nxhf aiwo lhyn zytq'
+DEFAULT_FROM_EMAIL = 'manzola416@gmail.com' # Remitente por defecto.
