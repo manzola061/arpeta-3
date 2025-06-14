@@ -11,6 +11,12 @@ from pathlib import Path
 # Directorio raíz del proyecto (donde se encuentra manage.py).
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Directorio donde se guardarán los archivos subidos por los usuarios
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# URL base para servir los archivos multimedia
+MEDIA_URL = '/media/'
+
 # Ruta para las plantillas HTML globales del proyecto.
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
@@ -131,14 +137,7 @@ USE_TZ = True                 # Usa información de zona horaria en datetimes.
 # --------------------------------------------------------------------------
 
 # URL para servir archivos estáticos (CSS, JS, imágenes).
-STATIC_URL = '/static/'
-# Directorio donde Django recolectará los archivos estáticos en producción.
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# Directorios adicionales para buscar archivos estáticos.
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-# Nota: La lógica 'if DEBUG' para STATICFILES_DIRS vs STATIC_ROOT no es necesaria
-# en la mayoría de los casos modernos de despliegue.
+STATIC_URL = 'static/'
 
 # Tipo de campo para claves primarias automáticas (BigAutoField para mayor rango).
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
